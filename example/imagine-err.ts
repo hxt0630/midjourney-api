@@ -2,9 +2,9 @@ import "dotenv/config";
 import { Midjourney } from "../src";
 /**
  *
- * a simple example of how to use the Upscale command
+ * a simple example of how to use the imagine command
  * ```
- * npx tsx example/upscale.ts
+ * npx tsx example/imagine-err.ts
  * ```
  */
 async function main() {
@@ -13,23 +13,17 @@ async function main() {
     ChannelId: <string>process.env.CHANNEL_ID,
     SalaiToken: <string>process.env.SALAI_TOKEN,
     Debug: true,
+    Ws: true,
   });
-  const msg = await client.Imagine("a cool cat, blue ears, yellow hat");
-  console.log({ msg });
-  if (!msg) {
-    console.log("no message");
-    return;
-  }
-  const msg2 = await client.Upscale(
-    msg.content,
-    2,
-    <string>msg.id,
-    <string>msg.hash,
+
+  await client.init();
+  const msg = await client.Imagine(
+    "https://edge-runtime.vercel.app/features/available-apis",
     (uri: string, progress: string) => {
       console.log("loading", uri, "progress", progress);
     }
   );
-  console.log({ msg2 });
+  console.log({ msg });
 }
 main().catch((err) => {
   console.error(err);

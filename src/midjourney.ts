@@ -6,12 +6,14 @@ import {
 } from "./interfaces";
 import { MidjourneyMessage } from "./midjourney.message";
 import { CreateQueue } from "./queue";
-import { random, sleep } from "./utls";
+import { nextNonce, random, sleep } from "./utls";
+import { WsMessage } from "./ws.message";
 export class Midjourney extends MidjourneyMessage {
   private ApiQueue = CreateQueue(1);
   public config: MidjourneyConfig;
+  private wsClient?: WsMessage;
   constructor(defaults: MidjourneyConfigParam) {
-    const { ServerId, SalaiToken, ChannelId } = defaults;
+    const { ServerId, SalaiToken, ChannelId, Ws } = defaults;
     if (!ServerId || !SalaiToken || !ChannelId) {
       throw new Error("ServerId, ChannelId and SalaiToken are required");
     }
@@ -21,22 +23,38 @@ export class Midjourney extends MidjourneyMessage {
       ...defaults,
     };
   }
+  async init() {
+    if (this.wsClient) return this;
+    return new Promise<Midjourney>((resolve) => {
+      this.wsClient = new WsMessage(this.config);
+      this.wsClient.once("ready", () => {
+        resolve(this);
+      });
+    });
+  }
 
   async Imagine(prompt: string, loading?: LoadingHandler) {
     if (!prompt.includes("--seed")) {
       const speed = random(1000, 9999);
       prompt = `${prompt} --seed ${speed}`;
     }
-    this.log(`Imagine`, prompt);
-    const httpStatus = await this.ImagineApi(prompt);
+
+    const nonce = nextNonce();
+    this.log(`Imagine`, prompt, "nonce", nonce);
+    const httpStatus = await this.ImagineApi(prompt, nonce);
     if (httpStatus !== 204) {
       throw new Error(`ImagineApi failed with status ${httpStatus}`);
     }
-    this.log(`await generate image`);
-    const msg = await this.WaitMessage(prompt, loading);
-    this.log(`image generated`, prompt, msg?.uri);
-    return msg;
+    if (this.wsClient) {
+      return await this.wsClient.waitMessage("imagine", nonce, loading);
+    } else {
+      this.log(`await generate image`);
+      const msg = await this.WaitMessage(prompt, loading);
+      this.log(`image generated`, prompt, msg?.uri);
+      return msg;
+    }
   }
+
   // limit the number of concurrent interactions
   protected async safeIteractions(payload: any) {
     return this.ApiQueue.addTask(
@@ -76,7 +94,7 @@ export class Midjourney extends MidjourneyMessage {
     }
   }
 
-  async ImagineApi(prompt: string) {
+  async ImagineApi(prompt: string, nonce: string = nextNonce()) {
     const payload = {
       type: 2,
       application_id: "936929561302675456",
@@ -117,6 +135,7 @@ export class Midjourney extends MidjourneyMessage {
         },
         attachments: [],
       },
+      nonce,
     };
     return this.safeIteractions(payload);
   }
@@ -132,14 +151,23 @@ export class Midjourney extends MidjourneyMessage {
     if (index < 1 || index > 4) {
       throw new Error(`Variation index must be between 1 and 4, got ${index}`);
     }
-    const httpStatus = await this.VariationApi(index, msgId, msgHash);
+    const nonce = nextNonce();
+    const httpStatus = await this.VariationApi(index, msgId, msgHash, nonce);
     if (httpStatus !== 204) {
       throw new Error(`VariationApi failed with status ${httpStatus}`);
     }
-    this.log(`await generate image`);
-    return await this.WaitOptionMessage(content, `Variations`, loading);
+    if (this.wsClient) {
+      return await this.wsClient.waitMessage("variation", nonce, loading);
+    } else {
+      return await this.WaitOptionMessage(content, `Variations`, loading);
+    }
   }
-  async VariationApi(index: number, messageId: string, messageHash: string) {
+  async VariationApi(
+    index: number,
+    messageId: string,
+    messageHash: string,
+    nonce?: string
+  ) {
     const payload = {
       type: 3,
       guild_id: this.config.ServerId,
@@ -152,6 +180,7 @@ export class Midjourney extends MidjourneyMessage {
         component_type: 2,
         custom_id: `MJ::JOB::variation::${index}::${messageHash}`,
       },
+      nonce,
     };
     return this.safeIteractions(payload);
   }
@@ -167,15 +196,24 @@ export class Midjourney extends MidjourneyMessage {
     if (index < 1 || index > 4) {
       throw new Error(`Variation index must be between 1 and 4, got ${index}`);
     }
-    const httpStatus = await this.UpscaleApi(index, msgId, msgHash);
+    const nonce = nextNonce();
+    const httpStatus = await this.UpscaleApi(index, msgId, msgHash, nonce);
     if (httpStatus !== 204) {
       throw new Error(`VariationApi failed with status ${httpStatus}`);
     }
     this.log(`await generate image`);
+    if (this.wsClient) {
+      return await this.wsClient.waitMessage("upscale", nonce, loading);
+    }
     return await this.WaitUpscaledMessage(content, index, loading);
   }
 
-  async UpscaleApi(index: number, messageId: string, messageHash: string) {
+  async UpscaleApi(
+    index: number,
+    messageId: string,
+    messageHash: string,
+    nonce?: string
+  ) {
     const payload = {
       type: 3,
       guild_id: this.config.ServerId,
@@ -188,6 +226,7 @@ export class Midjourney extends MidjourneyMessage {
         component_type: 2,
         custom_id: `MJ::JOB::upsample::${index}::${messageHash}`,
       },
+      nonce,
     };
     return this.safeIteractions(payload);
   }
