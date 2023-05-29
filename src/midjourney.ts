@@ -45,14 +45,16 @@ export class Midjourney extends MidjourneyMessage {
     if (httpStatus !== 204) {
       throw new Error(`ImagineApi failed with status ${httpStatus}`);
     }
-    if (this.wsClient) {
-      return await this.wsClient.waitMessage("imagine", nonce, loading);
-    } else {
-      this.log(`await generate image`);
-      const msg = await this.WaitMessage(prompt, loading);
-      this.log(`image generated`, prompt, msg?.uri);
-      return msg;
-    }
+    if(loading){
+      if (this.wsClient) {
+        return await this.wsClient.waitMessage("imagine", nonce, loading);
+      } else {
+        this.log(`await generate image`);
+        const msg = await this.WaitMessage(prompt, loading);
+        this.log(`image generated`, prompt, msg?.uri);
+        return msg;
+      }
+    }else return nonce
   }
 
   // limit the number of concurrent interactions
@@ -175,7 +177,7 @@ export class Midjourney extends MidjourneyMessage {
       message_flags: 0,
       message_id: messageId,
       application_id: "936929561302675456",
-      session_id: "1f3dbdf09efdf93d81a3a6420882c92c",
+      session_id: this.config.SessionId,
       data: {
         component_type: 2,
         custom_id: `MJ::JOB::variation::${index}::${messageHash}`,
@@ -221,7 +223,7 @@ export class Midjourney extends MidjourneyMessage {
       message_flags: 0,
       message_id: messageId,
       application_id: "936929561302675456",
-      session_id: "ec6524c8d2926e285a8232f7ed1ced98",
+      session_id: this.config.SessionId,
       data: {
         component_type: 2,
         custom_id: `MJ::JOB::upsample::${index}::${messageHash}`,
@@ -243,6 +245,37 @@ export class Midjourney extends MidjourneyMessage {
         component_type: 2,
         custom_id: customId,
       },
+    };
+    return this.safeIteractions(payload);
+  }
+  async InfoApi(nonce: string = nextNonce()) {
+    const payload = {
+      type: 2,
+      application_id: "936929561302675456",
+      guild_id: this.config.ServerId,
+      channel_id: this.config.ChannelId,
+      session_id: this.config.SessionId,
+      data: {
+        version: "987795925764280356",
+        id: "972289487818334209",
+        name: "info",
+        type: 1,
+        options: [],
+        application_command: {
+          id: "972289487818334209",
+          application_id: "936929561302675456",
+          version: "987795925764280356",
+          default_permission: true,
+          default_member_permissions: null,
+          type: 1,
+          nsfw: false,
+          name: "info",
+          description: "View information about your profile.",
+          dm_permission: true,
+        },
+        attachments: [],
+      },
+      nonce,
     };
     return this.safeIteractions(payload);
   }
