@@ -45,16 +45,14 @@ export class Midjourney extends MidjourneyMessage {
     if (httpStatus !== 204) {
       throw new Error(`ImagineApi failed with status ${httpStatus}`);
     }
-    if(loading){
-      if (this.wsClient) {
-        return await this.wsClient.waitMessage("imagine", nonce, loading);
-      } else {
-        this.log(`await generate image`);
-        const msg = await this.WaitMessage(prompt, loading);
-        this.log(`image generated`, prompt, msg?.uri);
-        return msg;
-      }
-    }else return nonce
+    if (this.wsClient) {
+      return await this.wsClient.waitMessage(nonce, loading);
+    } else {
+      this.log(`await generate image`);
+      const msg = await this.WaitMessage(prompt, loading);
+      this.log(`image generated`, prompt, msg?.uri);
+      return msg;
+    }
   }
 
   // limit the number of concurrent interactions
@@ -159,7 +157,7 @@ export class Midjourney extends MidjourneyMessage {
       throw new Error(`VariationApi failed with status ${httpStatus}`);
     }
     if (this.wsClient) {
-      return await this.wsClient.waitMessage("variation", nonce, loading);
+      return await this.wsClient.waitMessage(nonce, loading);
     } else {
       return await this.WaitOptionMessage(content, `Variations`, loading);
     }
@@ -205,7 +203,7 @@ export class Midjourney extends MidjourneyMessage {
     }
     this.log(`await generate image`);
     if (this.wsClient) {
-      return await this.wsClient.waitMessage("upscale", nonce, loading);
+      return await this.wsClient.waitMessage(nonce, loading);
     }
     return await this.WaitUpscaledMessage(content, index, loading);
   }
