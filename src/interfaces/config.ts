@@ -4,6 +4,7 @@ export interface MessageConfig {
   Debug: boolean;
   Limit: number;
   MaxWait: number;
+  Concurrent?:number;
   ServerId: string;
   SessionId: string;
   Ws?: boolean;
@@ -15,6 +16,7 @@ export interface MessageConfigParam {
   Debug?: boolean;
   Limit?: number;
   MaxWait?: number;
+  Concurrent?:number;
   Ws?: boolean;
   HuggingFaceToken?: string;
   ServerId?: string;
@@ -35,6 +37,7 @@ export const DefaultMessageConfig: MessageConfig = {
   ServerId: "",
   SessionId: "",
   Debug: false,
+  Concurrent:1,
   Limit: 50,
   MaxWait: 100,
 };
