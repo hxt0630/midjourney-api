@@ -1,54 +1,47 @@
-import PQueue from "p-queue";
+import PQueue from 'p-queue'
 
 class ConcurrentQueue {
-  private queue: (() => Promise<any>)[] = [];
-  private limit: any;
+	private limit: any
 
-  constructor(concurrency: number) {
-    this.limit = new PQueue({ concurrency });
-  }
-
-  public getWaiting(): number {
-    return this.queue.length;
-  }
-
-  public async addTask<T>(task: () => Promise<T>): Promise<T> {
-    return await this.limit.add(async () => {
-      const result = await task();
-      return result;
-    });
-  }
-
-  public async getResults(): Promise<any[]> {
-    return Promise.allSettled(
-      this.queue.map((task) => {
-        return task().catch((err) => err);
-      })
-    );
-  }
+	constructor(concurrency: number) {
+		this.limit = new PQueue({ concurrency })
+	}
+	public getWaiting(): number {
+		return this.limit.size
+	}
+	public getPending(): number {
+		return this.limit.pending
+	}
+	public async addTask<T>(task: () => Promise<T>): Promise<T> {
+		return await this.limit.add(async () => {
+			const result = await task()
+			return result
+		})
+	}
 }
 export function CreateQueue<T>(concurrency: number) {
-  return new ConcurrentQueue(5);
+	return new ConcurrentQueue(concurrency)
 }
 
-// // Usage example:
-// const queue = new ConcurrentQueue(5);
+// Usage example:
+// async function test(num: number) {
+// 	const queue = new ConcurrentQueue(num)
 
-// for (let i = 0; i < 10; i++) {
-//   queue.addTask(() =>
-//     new Promise<number>((resolve, reject) => {
-//       setTimeout(() => {
-//         console.log('Task done:', i);
-//         resolve(i * 2);
-//       }, Math.random() * 1000);
-//     })
-//   );
+// 	for (let i = 0; i < 10; i++) {
+// 		console.log(i, 'Task')
+// 		queue.addTask(
+// 			() =>
+// 				new Promise<number>((resolve, reject) => {
+// 					setTimeout(() => {
+// 						console.log('Task done:', i)
+// 						resolve(i * 2)
+// 					}, 3000)
+// 				})
+// 		)
+// 	}
+// 	setInterval(() => {
+// 		console.log('Pending', queue.getPending())
+// 		console.log('Waiting', queue.getWaiting())
+// 	}, 1000)
 // }
-
-// console.log('Tasks waiting:', queue.getWaiting());
-
-// setTimeout(() => {
-//   queue.getResults().then((results) => {
-//     console.log('Results:', results);
-//   });
-// }, 5000);
+// test(3)
