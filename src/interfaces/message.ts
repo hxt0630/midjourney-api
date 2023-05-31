@@ -1,5 +1,5 @@
 export interface MJMessage {
-  uri: string;
+  uri?: string;
   content: string;
   id?: string;
   hash?: string;

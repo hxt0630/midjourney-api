@@ -16,7 +16,7 @@ async function main() {
 		SessionId: process.env.SALAI_TOKEN,
 	})
 	await client.init()
-	const msg = await client.InfoApi()
+	const msg = await client.Command('relax')
 	console.log('msg', msg)
 }
 main().catch((err) => {

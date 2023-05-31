@@ -52,8 +52,6 @@ export class Midjourney extends MidjourneyMessage {
 				headers: headers,
 			})
 			callback && callback(response.status)
-			//discord api rate limit
-			await sleep(950)
 			if (response.status >= 400) {
 				this.log('error config', { config: this.config })
 			}
@@ -66,16 +64,16 @@ export class Midjourney extends MidjourneyMessage {
 	//TODO: Imagine command
 	async Imagine(prompt: string, loading?: LoadingHandler) {
 		if (!prompt.includes('--seed')) {
-			const speed = random(1000, 9999)
+			const speed = random(1000, 4294967295)
 			prompt = `${prompt} --seed ${speed}`
 		}
 
 		const nonce = nextNonce()
-		this.log(`Imagine`, prompt, 'nonce', nonce)
 		const httpStatus = await this.ImagineApi(prompt, nonce)
 		if (httpStatus !== 204) {
 			throw new Error(`ImagineApi failed with status ${httpStatus}`)
 		}
+		console.log(`Imagine start`, prompt, 'nonce', nonce)
 		if (!loading) return nonce
 		if (this.wsClient) {
 			return await this.wsClient.waitMessage(nonce, loading)
@@ -218,20 +216,20 @@ export class Midjourney extends MidjourneyMessage {
 		}
 		return this.safeIteractions(payload)
 	}
-
-	async Info() {
+	//TODO: Info command
+	async Command(command: 'info' | 'fast' | 'relax') {
 		const nonce = nextNonce()
-		const httpStatus = await this.InfoApi(nonce)
+		const httpStatus = await this[`${command}Api`](nonce)
 		if (httpStatus !== 204) {
-			throw new Error(`InfoApi failed with status ${httpStatus}`)
+			throw new Error(`${command}Api failed with status ${httpStatus}`)
 		}
-		this.log(`await info`)
+		this.log(`await ${command}Api`)
 		if (this.wsClient) {
 			return await this.wsClient.waitMessage(nonce)
 		}
 		// return await this.WaitUpscaledMessage()
 	}
-	async InfoApi(nonce: string = nextNonce()) {
+	async infoApi(nonce: string = nextNonce()) {
 		const payload = {
 			type: 2,
 			application_id: '936929561302675456',
@@ -261,5 +259,138 @@ export class Midjourney extends MidjourneyMessage {
 			nonce,
 		}
 		return this.safeIteractions(payload)
+	}
+	async fastApi(nonce: string = nextNonce()) {
+		const payload = {
+			type: 2,
+			application_id: '936929561302675456',
+			guild_id: this.config.ServerId,
+			channel_id: this.config.ChannelId,
+			session_id: this.config.SessionId,
+			data: {
+				version: '987795926183731231',
+				id: '972289487818334212',
+				name: 'fast',
+				type: 1,
+				options: [],
+				application_command: {
+					id: '972289487818334212',
+					application_id: '936929561302675456',
+					version: '987795926183731231',
+					default_member_permissions: null,
+					type: 1,
+					nsfw: false,
+					name: 'fast',
+					description: 'Switch to fast mode',
+					dm_permission: true,
+					contexts: null,
+				},
+				attachments: [],
+			},
+			nonce,
+		}
+		return this.safeIteractions(payload)
+	}
+	async relaxApi(nonce: string = nextNonce()) {
+		const payload = {
+			type: 2,
+			application_id: '936929561302675456',
+			guild_id: this.config.ServerId,
+			channel_id: this.config.ChannelId,
+			session_id: this.config.SessionId,
+			data: {
+				version: '987795926183731232',
+				id: '972289487818334213',
+				name: 'relax',
+				type: 1,
+				options: [],
+				application_command: {
+					id: '972289487818334213',
+					application_id: '936929561302675456',
+					version: '987795926183731232',
+					default_member_permissions: null,
+					type: 1,
+					nsfw: false,
+					name: 'relax',
+					description: 'Switch to relax mode',
+					dm_permission: true,
+					contexts: null,
+				},
+				attachments: [],
+			},
+			nonce,
+		}
+		return this.safeIteractions(payload)
+	}
+	//TODO: describe command
+	async Describe(attachments: { id: string; filename: string; uploaded_filename: string }[]) {
+		const nonce = nextNonce()
+		const httpStatus = await this.describeApi(nonce, attachments)
+		if (httpStatus !== 204) {
+			throw new Error(`describeApi failed with status ${httpStatus}`)
+		}
+		this.log(`await Describe`)
+		if (this.wsClient) {
+			return await this.wsClient.waitMessage(nonce)
+		}
+		// return await this.WaitUpscaledMessage()
+	}
+	async describeApi(nonce: string = nextNonce(), attachments: { id: string; filename: string; uploaded_filename: string }[]) {
+		const payload = {
+			type: 2,
+			application_id: '936929561302675456',
+			guild_id: this.config.ServerId,
+			channel_id: this.config.ChannelId,
+			session_id: this.config.SessionId,
+			data: {
+				version: '1092492867185950853',
+				id: '1092492867185950852',
+				name: 'describe',
+				type: 1,
+				options: [
+					{
+						type: 11,
+						name: 'image',
+						value: 0,
+					},
+				],
+				application_command: {
+					id: '1092492867185950852',
+					application_id: '936929561302675456',
+					version: '1092492867185950853',
+					default_member_permissions: null,
+					type: 1,
+					nsfw: false,
+					name: 'describe',
+					description: 'Writes a prompt based on your image.',
+					dm_permission: true,
+					contexts: null,
+					options: [
+						{
+							type: 11,
+							name: 'image',
+							description: 'The image to describe',
+							required: true,
+						},
+					],
+				},
+				attachments,
+			},
+			nonce,
+		}
+		return this.safeIteractions(payload)
+	}
+	async attachments(filename: string, size: number) {
+		const payload = { files: [{ filename, file_size: size, id: '1' }] }
+		const headers = {
+			'Content-Type': 'application/json',
+			Authorization: this.config.SalaiToken,
+		}
+		const response = await fetch(`https://discord.com/api/v9/channels/${this.config.ChannelId}/attachments`, {
+			method: 'POST',
+			body: JSON.stringify(payload),
+			headers: headers,
+		})
+		return response.json()
 	}
 }

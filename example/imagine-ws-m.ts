@@ -1,5 +1,7 @@
-import "dotenv/config";
-import { Midjourney } from "../src";
+import 'dotenv/config'
+import { Midjourney } from '../src'
+import { nextNonce, random, sleep } from '../src/utls'
+
 /**
  *
  * a simple example of using the imagine api with ws
@@ -8,38 +10,33 @@ import { Midjourney } from "../src";
  * ```
  */
 async function main() {
-  const client = new Midjourney({
-    ServerId: <string>process.env.SERVER_ID,
-    ChannelId: <string>process.env.CHANNEL_ID,
-    SalaiToken: <string>process.env.SALAI_TOKEN,
-    HuggingFaceToken: <string>process.env.HUGGINGFACE_TOKEN,
-    Debug: true,
-    Ws: true,
-  });
-  await client.init();
-  client
-    .Imagine("A little pink elephant", (uri) => {
-      console.log("loading123---", uri);
-    })
-    .then(function (msg) {
-      console.log("msg123", msg);
-    });
-
-  client
-    .Imagine("A little pink dog", (uri) => {
-      console.log("loading234---", uri);
-    })
-    .then(function (msg) {
-      console.log("msg234", msg);
-    });
+	const client = new Midjourney({
+		ServerId: <string>process.env.SERVER_ID,
+		ChannelId: <string>process.env.CHANNEL_ID,
+		SalaiToken: <string>process.env.SALAI_TOKEN,
+		HuggingFaceToken: <string>process.env.HUGGINGFACE_TOKEN,
+		Debug: true,
+		Ws: true,
+	})
+	await client.init()
+	const animals = ['A ruminant', 'A annelid', 'A arthropod', 'A echinoderm', 'A vertebrate', 'A chordate', 'A parasitic animal', 'A cold-blooded animal', 'A amphibian', 'A primate', 'A oviparous animal', 'A rodent', 'A mollusk', 'A crustacean', 'A protozoa']
+	// const animals = ['A parasitic animal']
+	console.log('prompt', animals.length)
+	for (let a of animals) {
+		client
+			.Imagine(a, (uri, progress) => {
+				console.log('proccess', a, uri, progress)
+			})
+			.then(function (msg) {
+				console.log('complete', a, msg)
+			})
+			.catch((err) => {
+				console.log('error', a, err.message)
+			})
+		await sleep(3000)
+	}
 }
-main()
-  .then(() => {
-    console.log("finished");
-    // process.exit(0);
-  })
-  .catch((err) => {
-    console.log("finished");
-    console.error(err);
-    process.exit(1);
-  });
+main().then(() => {
+	console.log('finished')
+	// process.exit(0);
+})

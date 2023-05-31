@@ -1,15 +1,13 @@
 import WebSocket from 'ws'
-import { createInflate, Inflate, constants as ZlibConstants } from 'zlib'
 import { MessageConfig, MessageConfigParam, DefaultMessageConfig, WaitMjEvent, MJMessage, LoadingHandler, WsEventMsg } from './interfaces'
 import { VerifyHuman } from './verify.human'
 
 export class WsMessage {
-	DISCORD_GATEWAY = 'wss://gateway.discord.gg/?v=9&encoding=json&compress=zlib-stream'
+	DISCORD_GATEWAY = 'wss://gateway.discord.gg/?v=9&encoding=json&compress=gzip-stream'
 	ws: WebSocket
 	MJBotId = '936929561302675456'
 	private zlibChunks: Buffer[] = []
 	public config: MessageConfig
-	private inflate: Inflate
 	private event: Array<{ event: string; callback: (message: any) => void }> = []
 	private waitMjEvents: Map<string, WaitMjEvent> = new Map()
 	private reconnectTime: boolean[] = []
@@ -27,9 +25,6 @@ export class WsMessage {
 		}
 		this.ws = new WebSocket(this.DISCORD_GATEWAY, {})
 		this.ws.on('open', this.open.bind(this))
-
-		this.inflate = createInflate({ flush: ZlibConstants.Z_SYNC_FLUSH })
-		this.inflate.on('data', (data) => this.zlibChunks.push(data))
 	}
 
 	private reconnect() {
@@ -88,23 +83,41 @@ export class WsMessage {
 		return new Promise((resolve) => setTimeout(resolve, ms))
 	}
 	private incomingMessage(data: Buffer) {
-		this.inflate.write(data)
-		if (data.length >= 4 && data.readUInt32BE(data.length - 4) === 0x0ffff) {
-			this.inflate.flush(ZlibConstants.Z_SYNC_FLUSH, this.handleFlushComplete.bind(this))
-		}
-	}
-	private handleFlushComplete() {
-		const data = this.zlibChunks.length > 1 ? Buffer.concat(this.zlibChunks) : this.zlibChunks[0]
-
-		this.zlibChunks = []
 		this.parseMessage(data)
 	}
+	// parse message from ws
+	private parseMessage(data: Buffer) {
+		var jsonString = data.toString()
+		const msg = JSON.parse(jsonString)
+		this.emit('data', msg)
+		if (msg.t === null || msg.t === 'READY_SUPPLEMENTAL') return
+		if (msg.t === 'READY') {
+			this.emit('ready', null)
+			return
+		}
+		if (!(msg.t === 'MESSAGE_CREATE' || msg.t === 'MESSAGE_UPDATE')) return
 
+		const message = msg.d
+		const { channel_id, content, application_id, embeds, id, nonce, author, attachments, type } = message
+		if (!(author && author.id === this.MJBotId)) return
+		if (channel_id !== this.config.ChannelId) return
+		this.log('has message', type, msg.t, content, nonce, id)
+		this.emit('message', message)
+
+		if (msg.t === 'MESSAGE_CREATE') {
+			this.messageCreate(message)
+			return
+		}
+		if (msg.t === 'MESSAGE_UPDATE') {
+			this.messageUpdate(message)
+			return
+		}
+	}
 	private async messageCreate(message: any) {
 		// this.log("messageCreate", message);
-		const { application_id, embeds, id, nonce } = message
+		const { application_id, embeds, id, nonce, attachments } = message
 		if (nonce) {
-			this.log('waiting start image or info or error')
+			// this.log('waiting start image or info or error')
 			this.updateMjEventIdByNonce(id, nonce)
 			if (embeds && embeds.length > 0) {
 				if (embeds[0].color === 16711680) {
@@ -132,14 +145,21 @@ export class WsMessage {
 			}
 		}
 		//done image
-		if (!nonce && !application_id) {
+		if (!nonce && attachments?.[0]?.url) {
 			this.log('done image')
 			this.done(message)
 			return
 		}
+		//process image
 		this.processingImage(message)
 	}
 	private messageUpdate(message: any) {
+		//command
+		if (['info', 'fast', 'relax', 'describe'].includes(message.interaction?.name)) {
+			this.log(`${message.interaction?.name} command success`)
+			this.command(message.id, message.embeds?.length ? message.embeds[0] : { description: message.content })
+			return
+		}
 		this.processingImage(message)
 	}
 	private processingImage(message: any) {
@@ -148,7 +168,7 @@ export class WsMessage {
 		if (!event) {
 			return
 		}
-		event.prompt = content
+		if (!content.includes('Progress images have been disabled')) event.prompt = content
 		//not image
 		if (!attachments || attachments.length === 0) {
 			// this.log("no image waiting", { id, nonce, content, event });
@@ -163,33 +183,6 @@ export class WsMessage {
 			message: MJmsg,
 		}
 		this.emitImage(event.nonce, eventMsg)
-	}
-
-	// parse message from ws
-	private parseMessage(data: Buffer) {
-		var jsonString = data.toString()
-		const msg = JSON.parse(jsonString)
-		if (msg.t === null || msg.t === 'READY_SUPPLEMENTAL') return
-		if (msg.t === 'READY') {
-			this.emit('ready', null)
-			return
-		}
-		if (!(msg.t === 'MESSAGE_CREATE' || msg.t === 'MESSAGE_UPDATE')) return
-
-		const message = msg.d
-		const { channel_id, content, application_id, embeds, id, nonce, author, attachments } = message
-		if (!(author && author.id === this.MJBotId)) return
-		if (channel_id !== this.config.ChannelId) return
-		this.log('has message', content, nonce, id)
-
-		if (msg.t === 'MESSAGE_CREATE') {
-			this.messageCreate(message)
-			return
-		}
-		if (msg.t === 'MESSAGE_UPDATE') {
-			this.messageUpdate(message)
-			return
-		}
 	}
 	private async verifyHuman(message: any) {
 		const { HuggingFaceToken } = this.config
@@ -250,6 +243,7 @@ export class WsMessage {
 		}
 	}
 	private EventError(id: string, error: Error) {
+		this.emit('error', { id, error })
 		const event = this.getEventById(id)
 		if (!event) {
 			return
@@ -259,7 +253,7 @@ export class WsMessage {
 		}
 		this.emit(event.nonce, eventMsg)
 	}
-
+	//图片完成
 	private done(message: any) {
 		const { content, id, attachments } = message
 		const MJmsg: MJMessage = {
@@ -271,6 +265,22 @@ export class WsMessage {
 		}
 		this.filterMessages(MJmsg)
 		return
+	}
+	//command命令
+	private command(id: string, message?: { description: string; title: string }) {
+		const event = this.getEventById(id)
+		if (!event) {
+			return
+		}
+		const MJmsg: MJMessage = {
+			id,
+			progress: 'done',
+			content: message?.description || '',
+		}
+		const eventMsg: WsEventMsg = {
+			message: MJmsg,
+		}
+		this.emit(event.nonce, eventMsg)
 	}
 
 	protected content2progress(content: string) {
@@ -357,16 +367,6 @@ export class WsMessage {
 	removeEvent(event: string) {
 		this.event = this.event.filter((e) => e.event !== event)
 	}
-	onceInfo(callback: (message: any) => void) {
-		const once = (message: any) => {
-			this.remove('info', once)
-			callback(message)
-		}
-		this.event.push({ event: 'info', callback: once })
-	}
-	removeInfo(callback: (message: any) => void) {
-		this.remove('info', callback)
-	}
 	private removeWaitMjEvent(nonce: string) {
 		this.waitMjEvents.delete(nonce)
 	}
@@ -402,7 +402,7 @@ export class WsMessage {
 					resolve(message)
 					return
 				}
-				message && loading && loading(message.uri, message.progress || '')
+				message && loading && loading(message.uri || '', message.progress || '')
 			})
 		})
 	}
