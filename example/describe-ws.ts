@@ -3,7 +3,7 @@ import { Midjourney } from '../src'
 import fs from 'fs'
 import path from 'path'
 import { Readable } from 'stream'
-
+import 'isomorphic-fetch'
 /**
  *
  * a simple example of how to use the imagine command
@@ -38,9 +38,9 @@ async function main() {
 	// const des = await client.Describe([{ id: uploadId, filename, uploaded_filename: uploadName }])
 	const des = await client.Describe([
 		{
-			id: '0',
-			filename: 'mark2.png',
-			uploaded_filename: '86e81ec9-ab6d-426a-bf5d-41d911a35734/mark2.png',
+			id: "0",
+			filename: 'WX20230522-1737462x.png',
+			uploaded_filename: '9f04beb4-98dd-4c77-915c-1dd9f1c3fe97/WX20230522-1737462x.png',
 		},
 	])
 	console.log('des', JSON.stringify(des))

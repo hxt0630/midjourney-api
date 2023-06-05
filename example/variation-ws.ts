@@ -16,22 +16,22 @@ async function main() {
 		Ws: true,
 	})
 	await client.init()
-	const msg: any = await client.Imagine('a dog, blue ears, and a red nose', (url, process) => {
-		console.log('process', url, process)
-	})
-	console.log({ msg })
-	if (!msg) {
-		console.log('no message')
-		return
-	}
-	const msg2 = await client.Variation(<string>msg.content, 2, <string>msg.id, <string>msg.hash, (uri: string) => {
+	// const msg: any = await client.Imagine('a dog, blue ears, and a red nose', (url, process) => {
+	// 	console.log('process', url, process)
+	// })
+	// console.log({ msg })
+	// if (!msg) {
+	// 	console.log('no message')
+	// 	return
+	// }
+	const msg2 = await client.Variation('**a dog, blue ears, and a red nose --seed 4026285321 --v 5.1** - <@1080737253673938964> (relaxed, stealth)', 2, '1113472569924915210', "dd1e550c-1e51-4128-9b2f-24cfd01e5a51", (uri: string) => {
 		console.log('loading', uri)
 	})
 	console.log({ msg2 })
-	const msg3 = await client.Variation(<string>msg.content, 3, <string>msg.id, <string>msg.hash, (uri: string) => {
-		console.log('loading', uri)
-	})
-	console.log({ msg3 })
+	// const msg3 = await client.Variation(<string>msg.content, 3, <string>msg.id, <string>msg.hash, (uri: string) => {
+	// 	console.log('loading', uri)
+	// })
+	// console.log({ msg3 })
 }
 main().catch((err) => {
 	console.error(err)

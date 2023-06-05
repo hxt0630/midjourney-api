@@ -19,13 +19,13 @@ async function main() {
 		Ws: true,
 	})
 	await client.init()
-	const animals = ['A ruminant', 'A annelid', 'A arthropod', 'A echinoderm', 'A vertebrate', 'A chordate', 'A parasitic animal', 'A cold-blooded animal', 'A amphibian', 'A primate', 'A oviparous animal', 'A rodent', 'A mollusk', 'A crustacean', 'A protozoa']
-	// const animals = ['A parasitic animal']
+	// const animals = ['a box of candy','a candy store','a candy bar','a rink with a floor of ice for ice hockey or ice skating','the frozen part of a body of water','A ruminant', 'A annelid', 'A arthropod', 'A echinoderm', 'A vertebrate', 'A chordate', 'A parasitic animal', 'A cold-blooded animal', 'A amphibian', 'A primate', 'A oviparous animal', 'A rodent', 'A mollusk', 'A crustacean', 'A protozoa']
+	const animals = ['A parasitic animal']
 	console.log('prompt', animals.length)
 	for (let a of animals) {
 		client
-			.Imagine(a, (uri, progress) => {
-				console.log('proccess', a, uri, progress)
+			.Imagine(a, (uri, progress, id) => {
+				console.log('proccess', a, uri, progress, id)
 			})
 			.then(function (msg) {
 				console.log('complete', a, msg)

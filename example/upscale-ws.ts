@@ -1,5 +1,5 @@
-import "dotenv/config";
-import { Midjourney } from "../src";
+import 'dotenv/config'
+import { Midjourney } from '../src'
 /**
  *
  * a simple example of how to use the Upscale with ws command
@@ -8,32 +8,28 @@ import { Midjourney } from "../src";
  * ```
  */
 async function main() {
-  const client = new Midjourney({
-    ServerId: <string>process.env.SERVER_ID,
-    ChannelId: <string>process.env.CHANNEL_ID,
-    SalaiToken: <string>process.env.SALAI_TOKEN,
-    Debug: true,
-    Ws: true,
-  });
-  await client.init();
-  const msg = await client.Imagine("a cool cat, blue ears, yellow hat");
-  console.log({ msg });
-  if (!msg) {
-    console.log("no message");
-    return;
-  }
-  const msg2 = await client.Upscale(
-    msg.content,
-    2,
-    <string>msg.id,
-    <string>msg.hash,
-    (uri: string, progress: string) => {
-      console.log("loading", uri, "progress", progress);
-    }
-  );
-  console.log({ msg2 });
+	const client = new Midjourney({
+		ServerId: <string>process.env.SERVER_ID,
+		ChannelId: <string>process.env.CHANNEL_ID,
+		SalaiToken: <string>process.env.SALAI_TOKEN,
+		Debug: true,
+		Ws: true,
+	})
+	await client.init()
+	const msg: any = await client.Imagine('a cool cat, blue ears, yellow hat', (url, p) => {
+		console.log(url, p)
+	})
+	console.log({ msg })
+	if (!msg) {
+		console.log('no message')
+		return
+	}
+	const msg2 = await client.Upscale(<string>msg.content, 2, <string>msg.id, <string>msg.hash, (uri: string, progress: string) => {
+		console.log('loading', uri, 'progress', progress)
+	})
+	console.log({ msg2 })
 }
 main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+	console.error(err)
+	process.exit(1)
+})

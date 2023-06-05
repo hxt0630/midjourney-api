@@ -176,6 +176,7 @@ export class WsMessage {
 		}
 		const MJmsg: MJMessage = {
 			uri: attachments[0].url,
+			id,
 			content: content,
 			progress: this.content2progress(content),
 		}
@@ -402,7 +403,7 @@ export class WsMessage {
 					resolve(message)
 					return
 				}
-				message && loading && loading(message.uri || '', message.progress || '')
+				message && loading && loading(message.uri || '', message.progress || '', message.id || '')
 			})
 		})
 	}

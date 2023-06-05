@@ -168,12 +168,12 @@ export class Midjourney extends MidjourneyMessage {
 	async Upscale(content: string, index: number, msgId: string, msgHash: string, loading?: LoadingHandler) {
 		// index is 1-4
 		if (index < 1 || index > 4) {
-			throw new Error(`Variation index must be between 1 and 4, got ${index}`)
+			throw new Error(`Upscale index must be between 1 and 4, got ${index}`)
 		}
 		const nonce = nextNonce()
 		const httpStatus = await this.UpscaleApi(index, msgId, msgHash, nonce)
 		if (httpStatus !== 204) {
-			throw new Error(`VariationApi failed with status ${httpStatus}`)
+			throw new Error(`UpscaleApi failed with status ${httpStatus}`)
 		}
 		if (!loading) return nonce
 		this.log(`await generate image`)
@@ -387,6 +387,24 @@ export class Midjourney extends MidjourneyMessage {
 			Authorization: this.config.SalaiToken,
 		}
 		const response = await fetch(`https://discord.com/api/v9/channels/${this.config.ChannelId}/attachments`, {
+			method: 'POST',
+			body: JSON.stringify(payload),
+			headers: headers,
+		})
+		return response.json()
+	}
+	//TODO:Create Message
+	async message(message: any) {
+		const payload = {
+			...message,
+			nonce: nextNonce(),
+			channel_id: this.config.ChannelId,
+		}
+		const headers = {
+			'Content-Type': 'application/json',
+			Authorization: this.config.SalaiToken,
+		}
+		const response = await fetch(`https://discord.com/api/v9/channels/${this.config.ChannelId}/messages`, {
 			method: 'POST',
 			body: JSON.stringify(payload),
 			headers: headers,
