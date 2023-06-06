@@ -129,14 +129,14 @@ export class WsMessage {
 					//warning
 					console.warn(embeds[0].description)
 				}
-				if (embeds[0].title.includes('continue')) {
+				if (embeds[0].title?.includes('continue')) {
 					if (embeds[0].description.includes("verify you're human")) {
 						//verify human
 						await this.verifyHuman(message)
 						return
 					}
 				}
-				if (embeds[0].title.includes('Invalid')) {
+				if (embeds[0].title?.includes('Invalid')) {
 					//error
 					const error = new Error(embeds[0].description)
 					this.EventError(id, error)
@@ -158,6 +158,10 @@ export class WsMessage {
 		if (['info', 'fast', 'relax', 'describe'].includes(message.interaction?.name)) {
 			this.log(`${message.interaction?.name} command success`)
 			this.command(message.id, message.embeds?.length ? message.embeds[0] : { description: message.content })
+			return
+		} else if (message.content.includes('(Stopped)') && message.embeds?.[0].description) {
+			const error = new Error(message.embeds[0].description)
+			this.EventError(message.id, error)
 			return
 		}
 		this.processingImage(message)
