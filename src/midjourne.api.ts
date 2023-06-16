@@ -17,8 +17,22 @@ import path from "path";
 
 export class MidjourneyApi extends Command {
   UpId = Date.now() % 10; // upload id
+<<<<<<< HEAD
   constructor(public config: MJConfig) {
     super(config);
+=======
+  constructor(public config: MJConfig) {}
+  // limit the number of concurrent interactions
+  protected async safeIteractions(payload: any) {
+    return this.apiQueue.addTask(
+      () =>
+        new Promise<number>((resolve) => {
+          this.interactions(payload, (res) => {
+            resolve(res);
+          });
+        })
+    );
+>>>>>>> config add fetch
   }
   private safeIteractions = (request: any) => {
     return new Promise<number>((resolve, reject) => {
@@ -65,6 +79,11 @@ export class MidjourneyApi extends Command {
           headers: headers,
         }
       );
+<<<<<<< HEAD
+=======
+      callback && callback(response.status);
+      //discord api rate limit
+>>>>>>> config add fetch
       if (response.status >= 400) {
         console.error("api.error.config", {
           payload: JSON.stringify(payload),
@@ -335,6 +354,7 @@ export class MidjourneyApi extends Command {
    * @param fileUrl http file path
    * @returns
    */
+<<<<<<< HEAD
   async UploadImageByUri(fileUrl: string) {
     const response = await this.config.fetch(fileUrl);
     const fileData = await response.arrayBuffer();
@@ -343,6 +363,25 @@ export class MidjourneyApi extends Command {
     const file_size = fileData.byteLength;
     if (!mimeType) {
       throw new Error("Unknown mime type");
+=======
+  async UploadImage(fileUrl: string) {
+    let fileData;
+    let mimeType;
+    let filename;
+    let file_size;
+
+    if (fileUrl.startsWith("http")) {
+      const response = await this.config.fetch(fileUrl);
+      fileData = await response.arrayBuffer();
+      mimeType = response.headers.get("content-type");
+      filename = path.basename(fileUrl) || "image.png";
+      file_size = fileData.byteLength;
+    } else {
+      fileData = await fs.promises.readFile(fileUrl);
+      mimeType = mime.getType(fileUrl);
+      filename = path.basename(fileUrl);
+      file_size = (await fs.promises.stat(fileUrl)).size;
+>>>>>>> config add fetch
     }
     const { attachments } = await this.attachments({
       filename,
@@ -396,7 +435,11 @@ export class MidjourneyApi extends Command {
       `${DiscordBaseUrl}/api/v9/channels/${ChannelId}/attachments`
     );
     const body = { files };
+<<<<<<< HEAD
     const response = await this.config.fetch(url, {
+=======
+    const response = await this.config.fetch(url.toString(), {
+>>>>>>> config add fetch
       headers,
       method: "POST",
       body: JSON.stringify(body),
