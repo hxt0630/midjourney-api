@@ -1,4 +1,5 @@
 import { DefaultMidjourneyConfig, LoadingHandler, MidjourneyConfig, MidjourneyConfigParam } from './interfaces'
+
 import { MidjourneyMessage } from './midjourney.message'
 import { CreateQueue } from './queue'
 import { nextNonce, random, sleep } from './utls'
@@ -92,7 +93,7 @@ export class Midjourney extends MidjourneyMessage {
 			channel_id: this.config.ChannelId,
 			session_id: this.config.SessionId,
 			data: {
-				version: '1077969938624553050',
+				version: '1118961510123847772',
 				id: '938956540159881230',
 				name: 'imagine',
 				type: 1,
@@ -106,7 +107,7 @@ export class Midjourney extends MidjourneyMessage {
 				application_command: {
 					id: '938956540159881230',
 					application_id: '936929561302675456',
-					version: '1077969938624553050',
+					version: '1118961510123847772',
 					default_permission: true,
 					default_member_permissions: null,
 					type: 1,
@@ -237,7 +238,7 @@ export class Midjourney extends MidjourneyMessage {
 			channel_id: this.config.ChannelId,
 			session_id: this.config.SessionId,
 			data: {
-				version: '987795925764280356',
+				version: '1118961510123847776',
 				id: '972289487818334209',
 				name: 'info',
 				type: 1,
@@ -245,7 +246,7 @@ export class Midjourney extends MidjourneyMessage {
 				application_command: {
 					id: '972289487818334209',
 					application_id: '936929561302675456',
-					version: '987795925764280356',
+					version: '1118961510123847776',
 					default_permission: true,
 					default_member_permissions: null,
 					type: 1,

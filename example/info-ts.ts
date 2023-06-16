@@ -1,5 +1,7 @@
 import 'dotenv/config'
+import 'isomorphic-fetch'
 import { Midjourney } from '../src'
+
 /**
  *
  * a simple example of how to use the imagine command

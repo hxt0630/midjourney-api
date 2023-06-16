@@ -1,5 +1,7 @@
 import 'dotenv/config'
 import { Midjourney } from '../src'
+import 'isomorphic-fetch'
+
 import { nextNonce, random, sleep } from '../src/utls'
 
 /**
