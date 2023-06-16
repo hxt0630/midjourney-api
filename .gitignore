@@ -133,3 +133,7 @@ dist
 # Directory for build generated files
 libs
 .idea
+.history
+.npmignore
+pnpm-lock.yaml
+launch.json
