@@ -1,6 +1,6 @@
 {
-  "name": "midjourney",
-  "version": "2.7.0",
+  "name": "@kyohxt/midjourney",
+  "version": "2.9.0",
   "description": "Node.js client for the unofficial MidJourney API.",
   "main": "libs/index.js",
   "types": "libs/index.d.ts",
@@ -13,7 +13,6 @@
   },
   "files": [
     "libs/*",
-    "src/*",
     "*.md"
   ],
   "repository": {
@@ -46,6 +45,7 @@
   "dependencies": {
     "@huggingface/inference": "^2.5.0",
     "isomorphic-ws": "^5.0.0",
+    "isomorphic-fetch": "^3.0.0",
     "mime": "^3.0.0",
     "p-queue": "^6.6.2",
     "snowyflake": "^2.0.0",

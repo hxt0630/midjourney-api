@@ -98,7 +98,7 @@ export class WsMessage {
     const { embeds, id, nonce, components } = message;
 
     if (nonce) {
-      this.log("waiting start image or info or error");
+      // this.log('waiting start image or info or error')
       this.updateMjEventIdByNonce(id, nonce);
 
       if (embeds?.[0]) {
@@ -158,6 +158,10 @@ export class WsMessage {
           return;
         }
       }
+      return;
+    } else if (content.includes("(Stopped)") && embeds?.[0].description) {
+      const error = new Error(embeds[0].description);
+      this.EventError(id, error);
       return;
     }
     this.processingImage(message);
@@ -368,10 +372,6 @@ export class WsMessage {
     };
     this.waitMjEvents.set(nonce, { nonce });
     this.event.push({ event: nonce, callback: once });
-  }
-
-  removeInfo(callback: (message: any) => void) {
-    this.remove("info", callback);
   }
   private removeWaitMjEvent(nonce: string) {
     this.waitMjEvents.delete(nonce);

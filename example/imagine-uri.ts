@@ -28,8 +28,8 @@ async function main() {
   const msg2 = await client.Upscale(
     msg.content,
     2,
-    msg.id,
-    msg.hash,
+    msg.id as string,
+    msg.hash as string,
     (uri: string, progress: string) => {
       console.log("loading", uri, "progress", progress);
     }
@@ -38,5 +38,5 @@ async function main() {
 }
 main().catch((err) => {
   console.error(err);
-  process.exit(1);
+  // process.exit(1);
 });

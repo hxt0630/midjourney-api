@@ -39,9 +39,9 @@ export class Midjourney extends MidjourneyMessage {
   }
   async Imagine(prompt: string, loading?: LoadingHandler) {
     prompt = prompt.trim();
-    if (!this.wsClient) {
-      const seed = random(1000000000, 9999999999);
-      prompt = `[${seed}] ${prompt}`;
+    if (!prompt.includes("--seed")) {
+      const speed = random(1000, 4294967295);
+      prompt = `${prompt} --seed ${speed}`;
     }
 
     const nonce = nextNonce();
@@ -157,7 +157,9 @@ export class Midjourney extends MidjourneyMessage {
     }
     return await this.WaitUpscaledMessage(content, index, loading);
   }
-
+  Message(message: any) {
+    return this.MJApi.Message(message);
+  }
   Close() {
     if (this.wsClient) {
       this.wsClient.close();

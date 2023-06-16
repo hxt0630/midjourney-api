@@ -19,10 +19,14 @@ async function main() {
   const msg = await client.Describe(
     "https://img.ohdat.io/midjourney-image/1b74cab8-70c9-474e-bfbb-093e9a3cfd5c/0_1.png"
   );
+  // const fileinfo = await client.MJApi.UploadImage('https://img.ohdat.io/midjourney-image/1b74cab8-70c9-474e-bfbb-093e9a3cfd5c/0_1.png')
+  // console.log(fileinfo)
+  // const msg = await client.Describe(fileinfo)
+
   console.log({ msg });
 }
 main().catch((err) => {
   console.log("finished");
   console.error(err);
-  process.exit(1);
+  // process.exit(1)
 });

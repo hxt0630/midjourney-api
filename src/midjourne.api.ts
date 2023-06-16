@@ -4,6 +4,8 @@ import { nextNonce, sleep } from "./utls";
 import * as fs from "fs";
 import path from "path";
 import * as mime from "mime";
+import "isomorphic-fetch";
+
 interface CustomRequestInit extends RequestInit {
   agent?: any;
 }
@@ -34,14 +36,14 @@ export class MidjourneyApi {
         "Content-Type": "application/json",
         Authorization: this.config.SalaiToken,
       };
-      console.log("api.DiscordBaseUrl", this.config.DiscordBaseUrl);
+      // console.log('api.DiscordBaseUrl', this.config.DiscordBaseUrl)
 
-      let fetchUrl = `${this.config.ProxyUrl}?url=${encodeURIComponent(
-        `${this.config.DiscordBaseUrl}/api/v9/interactions`
-      )}`;
-
-      fetchUrl = `${this.config.DiscordBaseUrl}/api/v9/interactions`;
-      console.log("api.fetchUrl", fetchUrl);
+      let fetchUrl = `${this.config.DiscordBaseUrl}/api/v9/interactions`;
+      if (this.config.ProxyUrl)
+        fetchUrl = `${this.config.ProxyUrl}?url=${encodeURIComponent(
+          fetchUrl
+        )}`;
+      // console.log('api.fetchUrl', fetchUrl)
       const response = await fetch(fetchUrl, {
         method: "POST",
         body: JSON.stringify(payload),
@@ -49,7 +51,6 @@ export class MidjourneyApi {
       });
       callback && callback(response.status);
       //discord api rate limit
-      await sleep(950);
       if (response.status >= 400) {
         console.error("api.error.config", { payload, config: this.config });
       }
@@ -399,5 +400,24 @@ export class MidjourneyApi {
       nonce,
     };
     return this.safeIteractions(payload);
+  }
+  //TODO:Create Message
+  async Message(message: any) {
+    const payload = {
+      ...message,
+      nonce: nextNonce(),
+      channel_id: this.config.ChannelId,
+    };
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: this.config.SalaiToken,
+    };
+    let fetchUrl = `${this.config.DiscordBaseUrl}/api/v9/channels/${this.config.ChannelId}/messages`;
+    const response = await fetch(fetchUrl, {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: headers,
+    });
+    return response.json();
   }
 }
