@@ -15,7 +15,7 @@ async function main() {
     Debug: true,
     Ws: true,
   });
-  await client.init();
+  await client.Connect();
   const msg = await client.Describe(
     "https://image-gpt.qyt.com/midjourney/50732/20230617112957_WX20230613-152026@2x.png"
   );
