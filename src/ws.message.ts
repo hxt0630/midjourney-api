@@ -262,7 +262,6 @@ export class WsMessage {
       content,
       hash: this.uriToHash(attachments[0].url),
       progress: "done",
-      flags: flags,
       uri: attachments[0].url,
       options: formatOptions(components),
     };
