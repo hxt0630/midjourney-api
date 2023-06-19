@@ -17,13 +17,14 @@ async function main() {
   });
   await client.Connect();
   const msg = await client.Describe(
-    "https://image-gpt.qyt.com/midjourney/50732/20230617112957_WX20230613-152026@2x.png"
+    "https://cdn.discordapp.com/attachments/1107965981839605792/1119977411631652914/Soga_a_cool_cat_blue_ears_yellow_hat_02afd1ed-17eb-4a61-9101-7a99b105e4cc.png"
   );
   // const fileinfo = await client.MJApi.UploadImage('https://img.ohdat.io/midjourney-image/1b74cab8-70c9-474e-bfbb-093e9a3cfd5c/0_1.png')
   // console.log(fileinfo)
   // const msg = await client.Describe(fileinfo)
 
   console.log({ msg });
+  client.Close();
 }
 main().catch((err) => {
   console.log("finished");
