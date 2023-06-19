@@ -165,7 +165,7 @@ export class WsMessage {
     }
   }
   private processingImage(message: any) {
-    const { content = "", id, attachments, flags } = message;
+    const { content, id, attachments, flags } = message;
     if (!content) {
       return;
     }
