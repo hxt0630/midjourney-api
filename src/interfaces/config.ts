@@ -1,4 +1,5 @@
 import WebSocket from "isomorphic-ws";
+import "isomorphic-fetch";
 
 export type FetchFn = typeof fetch;
 export type WebSocketCl = typeof WebSocket;
