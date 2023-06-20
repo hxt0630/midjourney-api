@@ -66,6 +66,12 @@ export class WsMessage {
       this.parseMessage(event.data as string);
     });
     this.ws.addEventListener("error", (event) => {
+      // this.log("ws.error", event);
+      this.reconnectTime[num] = true;
+      this.reconnect();
+    });
+    this.ws.addEventListener("close", (event) => {
+      // this.log("ws.close", event);
       this.reconnectTime[num] = true;
       this.reconnect();
     });
@@ -147,7 +153,7 @@ export class WsMessage {
     const { content, embeds, interaction, nonce, id } = message;
     if (content === "") {
       //describe
-      if (interaction.name === "describe" && !nonce) {
+      if (interaction?.name === "describe" && !nonce) {
         this.emitDescribe(id, embeds[0].description);
       }
       if (embeds && embeds.length > 0 && embeds[0].color === 0) {

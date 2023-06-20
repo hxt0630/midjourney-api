@@ -1,6 +1,6 @@
 {
   "name": "@kyohxt/midjourney",
-  "version": "2.9.0",
+  "version": "2.9.1",
   "description": "Node.js client for the unofficial MidJourney API.",
   "main": "libs/index.js",
   "types": "libs/index.d.ts",
