@@ -160,12 +160,17 @@ export class WsMessage {
           return;
       }
     }
+    if (content.includes("(Stopped)") && embeds?.[0].description) {
+      const error = new Error(embeds[0].description);
+      this.EventError(id, error);
+      return;
+    }
     if (content) {
       this.processingImage(message);
     }
   }
   private processingImage(message: any) {
-    const { content, id, attachments, flags } = message;
+    const { content = "", id, attachments, flags } = message;
     if (!content) {
       return;
     }
