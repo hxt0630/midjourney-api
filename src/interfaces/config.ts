@@ -1,14 +1,9 @@
-<<<<<<< HEAD
 import WebSocket from "isomorphic-ws";
 
 export type FetchFn = typeof fetch;
 export type WebSocketCl = typeof WebSocket;
 export const MJBot = "936929561302675456";
 export const NijiBot = "1022952195194359889";
-=======
-export type FetchFn = typeof fetch;
-
->>>>>>> config add fetch
 export interface MJConfig {
   ChannelId: string;
   SalaiToken: string;
@@ -24,12 +19,9 @@ export interface MJConfig {
   DiscordBaseUrl: string;
   WsBaseUrl: string;
   fetch: FetchFn;
-<<<<<<< HEAD
   ApiInterval: number;
   WebSocket: WebSocketCl;
   ImageProxy: string;
-=======
->>>>>>> config add fetch
 }
 export interface MJConfigParam {
   SalaiToken: string; //DISCORD_TOKEN
@@ -47,12 +39,8 @@ export interface MJConfigParam {
   DiscordBaseUrl?: string;
   ImageProxy?: string;
   WsBaseUrl?: string;
-<<<<<<< HEAD
   fetch?: FetchFn; //Node.js<18 need node.fetch Or proxy
   WebSocket?: WebSocketCl; //isomorphic-ws Or proxy
-=======
-  fetch?: FetchFn;
->>>>>>> config add fetch
 }
 
 export const DefaultMJConfig: MJConfig = {
@@ -67,12 +55,7 @@ export const DefaultMJConfig: MJConfig = {
   MaxWait: 200,
   ImageProxy: "",
   DiscordBaseUrl: "https://discord.com",
-<<<<<<< HEAD
   WsBaseUrl: "wss://gateway.discord.gg/?encoding=json&v=9",
   fetch: fetch,
   WebSocket: WebSocket,
-=======
-  WsBaseUrl: "wss://gateway.discord.gg?v=9&encoding=json&compress=gzip-stream",
-  fetch: fetch,
->>>>>>> config add fetch
 };

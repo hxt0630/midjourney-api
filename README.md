@@ -39,7 +39,8 @@ To run the included example, you must have [Node.js](https://nodejs.org/en/) ins
 
 3. set the environment variables
 
-- [Login Discord](https://discord.com/channels/@me)`F12` _OR_ `Ctrl + Shift + I` (or `Command + Option + I` on Mac) to open the developer tools _AND_ paste the following code into the console
+- [Login Discord](https://discord.com/channels/@me)  
+  `F12` _OR_ `Ctrl + Shift + I` (or `Command + Option + I` on Mac) to open the developer tools _AND_ paste the following code into the console
 
   ```javascript
   window.webpackChunkdiscord_app.push([
@@ -65,14 +66,11 @@ To run the included example, you must have [Node.js](https://nodejs.org/en/) ins
   OR [use network your Discord TOKEN](https://www.androidauthority.com/get-discord-token-3149920/)
 
 - [Join my discord server](https://discord.com/invite/GavuGHQbV4)
-
   ```
   export SERVER_ID="1082500871478329374"
   export CHANNEL_ID="1094892992281718894"
   ```
-
 - OR [Create a server](https://discord.com/blog/starting-your-first-discord-server) and [Invite Midjourney Bot to Your Server](https://docs.midjourney.com/docs/invite-the-bot)
-
   ```bash
   # How to get server and channel ids:
   # when you click on a channel in your server in the browser
@@ -81,7 +79,6 @@ To run the included example, you must have [Node.js](https://nodejs.org/en/) ins
   export SERVER_ID="your-server-id"
   export CHANNEL_ID="your-channel-id"
   ```
-
 - wirte your token to `.env` file or set the environment variables
 
   ```bash
@@ -145,7 +142,6 @@ To run the included example, you must have [Node.js](https://nodejs.org/en/) ins
      return;
    }
    //U1 U2 U3 U4 V1 V2 V3 V4  "Vary (Strong)" ...
-   //⬅️,⬆️,⬇️,➡️
    const V1CustomID = Imagine.options?.find((o) => o.label === "V1")?.custom;
    if (!V1CustomID) {
      console.log("no V1");
@@ -199,29 +195,6 @@ To run the included example, you must have [Node.js](https://nodejs.org/en/) ins
    console.log(CustomZoomout);
    ```
 
-3. config param
-   ```
-   export interface MJConfigParam {
-     SalaiToken: string; //DISCORD_TOKEN
-     ChannelId?: string; //DISCORD_CHANNEL_ID
-     ServerId?: string; //DISCORD_SERVER_ID
-     BotId?: typeof MJBot | typeof NijiBot; //DISCORD_BOT_ID MJBot OR NijiBot
-     Debug?: boolean; // print log
-     ApiInterval?: number; //ApiInterval request api interval
-     Limit?: number; //Limit of get message list
-     MaxWait?: number;
-     Remix?: boolean; //Remix:true use remix mode
-     Ws?: boolean; //Ws:true use websocket get discord message (ephemeral message)
-     HuggingFaceToken?: string; //HuggingFaceToken for verify human
-     SessionId?: string;
-     DiscordBaseUrl?: string;
-     ImageProxy?: string;
-     WsBaseUrl?: string;
-     fetch?: FetchFn; //Node.js<18 need node.fetch Or proxy
-     WebSocket?: WebSocketCl; //isomorphic-ws Or proxy
-   }
-   ```
-
 ## route-map
 
 - [x] `/imagine` `variation` `upscale` `reroll` `blend` `zoomout` `vary`
@@ -254,7 +227,7 @@ To run the included example, you must have [Node.js](https://nodejs.org/en/) ins
 If you find it valuable and would like to show your support, any donations would be greatly appreciated. Your contribution helps me maintain and improve the program.
 
 <span style="word-spacing:20px">
-<img src="images/ali.png" height="300"/>  
+<img src="images/ali.png" height="300"/>&nbsp;&nbsp;
 <img src="images/wechat.png" height="300"/>
 <a href='https://ko-fi.com/erictik' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee' /></a>
 </span>
