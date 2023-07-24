@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { Midjourney } from "../src";
-import { sleep } from "../src/utls";
+import { sleep } from "../src/utils";
 /**
  *
  * a simple example of using the shorten api

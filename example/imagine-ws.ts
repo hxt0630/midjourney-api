@@ -61,7 +61,7 @@ async function main() {
     },
   });
   console.log({ Upscale });
-
+debugger
   client.Close();
 }
 main()

@@ -242,7 +242,7 @@ export class WsMessage {
     }
     if (embeds?.[0]) {
       var { description, title } = embeds[0];
-      if (title === "Duplicate images detected") {
+      if (title === "Duplicate images detected" || content.includes("(Stopped)")) {
         const error = new Error(description);
         this.EventError(id, error);
         return;

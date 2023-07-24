@@ -59,9 +59,6 @@ export class Midjourney extends MidjourneyMessage {
     }
     return this;
   }
-  async init() {
-    return this.Connect();
-  }
   async Imagine(prompt: string, loading?: LoadingHandler) {
     prompt = prompt.trim();
     if (!this.config.Ws) {
